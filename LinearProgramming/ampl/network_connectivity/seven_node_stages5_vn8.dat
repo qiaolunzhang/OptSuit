@@ -1,0 +1,153 @@
+data;
+
+set K := 0 1 2 3 4 5;
+
+set Np := 1 2 3 4 5 6 7;
+
+set Ep_u := (1,2) (2,3) (3,4) (4,5) (5,6) (6,7) (1,7) (4,6) (3,6) (2,6) (2,7);
+
+set V := vn1 vn2 vn3 vn4 vn5 vn6 vn7 vn8;
+
+# all logical nodes
+set Nl := vn1_1 vn1_2 vn1_3 vn1_4 vn2_1 vn2_2 vn2_3 vn2_4 vn3_1 vn3_2 vn3_3 vn3_4 vn4_1 vn4_2 vn4_3 vn4_4 vn5_1 vn5_2 vn5_3 vn5_4 vn6_1 vn6_2 vn6_3 vn6_4 vn7_1 vn7_2 vn7_3 vn7_4 vn8_1 vn8_2 vn8_3 vn8_4;
+# all the logical links
+set El_u := (vn1_1,vn1_2) (vn1_2,vn1_3) (vn1_3,vn1_4) (vn1_4,vn1_1) (vn2_1,vn2_2) (vn2_2,vn2_3) (vn2_3,vn2_4) (vn2_4,vn2_1) (vn3_1,vn3_2) (vn3_2,vn3_3) (vn3_3,vn3_4) (vn3_4,vn3_1) (vn4_1,vn4_2) (vn4_2,vn4_3) (vn4_3,vn4_4) (vn4_4,vn4_1) (vn5_1,vn5_2) (vn5_2,vn5_3) (vn5_3,vn5_4) (vn5_4,vn5_1) (vn6_1,vn6_2) (vn6_2,vn6_3) (vn6_3,vn6_4) (vn6_4,vn6_1) (vn7_1,vn7_2) (vn7_2,vn7_3) (vn7_3,vn7_4) (vn7_4,vn7_1) (vn8_1,vn8_2) (vn8_2,vn8_3) (vn8_3,vn8_4) (vn8_4,vn8_1);
+
+# nodes for each virtual networks
+set Nlog[vn1] := vn1_1 vn1_2 vn1_3 vn1_4;
+set Nlog[vn2] := vn2_1 vn2_2 vn2_3 vn2_4;
+set Nlog[vn3] := vn3_1 vn3_2 vn3_3 vn3_4;
+set Nlog[vn4] := vn4_1 vn4_2 vn4_3 vn4_4;
+set Nlog[vn5] := vn5_1 vn5_2 vn5_3 vn5_4;
+set Nlog[vn6] := vn6_1 vn6_2 vn6_3 vn6_4;
+set Nlog[vn7] := vn7_1 vn7_2 vn7_3 vn7_4;
+set Nlog[vn8] := vn8_1 vn8_2 vn8_3 vn8_4;
+
+# links of each virtual networks
+set Elog[vn1] := (vn1_1,vn1_2) (vn1_2,vn1_3) (vn1_3,vn1_4) (vn1_4,vn1_1) (vn1_2,vn1_1) (vn1_3,vn1_2) (vn1_4,vn1_3) (vn1_1,vn1_4);
+set Elog[vn2] := (vn2_1,vn2_2) (vn2_2,vn2_3) (vn2_3,vn2_4) (vn2_4,vn2_1) (vn2_2,vn2_1) (vn2_3,vn2_2) (vn2_4,vn2_3) (vn2_1,vn2_4);
+set Elog[vn3] := (vn3_1,vn3_2) (vn3_2,vn3_3) (vn3_3,vn3_4) (vn3_4,vn3_1) (vn3_2,vn3_1) (vn3_3,vn3_2) (vn3_4,vn3_3) (vn3_1,vn3_4);
+set Elog[vn4] := (vn4_1,vn4_2) (vn4_2,vn4_3) (vn4_3,vn4_4) (vn4_4,vn4_1) (vn4_2,vn4_1) (vn4_3,vn4_2) (vn4_4,vn4_3) (vn4_1,vn4_4);
+set Elog[vn5] := (vn5_1,vn5_2) (vn5_2,vn5_3) (vn5_3,vn5_4) (vn5_4,vn5_1) (vn5_2,vn5_1) (vn5_3,vn5_2) (vn5_4,vn5_3) (vn5_1,vn5_4);
+set Elog[vn6] := (vn6_1,vn6_2) (vn6_2,vn6_3) (vn6_3,vn6_4) (vn6_4,vn6_1) (vn6_2,vn6_1) (vn6_3,vn6_2) (vn6_4,vn6_3) (vn6_1,vn6_4);
+set Elog[vn7] := (vn7_1,vn7_2) (vn7_2,vn7_3) (vn7_3,vn7_4) (vn7_4,vn7_1) (vn7_2,vn7_1) (vn7_3,vn7_2) (vn7_4,vn7_3) (vn7_1,vn7_4);
+set Elog[vn8] := (vn8_1,vn8_2) (vn8_2,vn8_3) (vn8_3,vn8_4) (vn8_4,vn8_1) (vn8_2,vn8_1) (vn8_3,vn8_2) (vn8_4,vn8_3) (vn8_1,vn8_4);
+
+# failed physical nodes
+set Nf := 6 5 4 2 7 1;
+
+# failed physical links
+set Ef_u := (2,3) (4,5) (2,7) (4,6) (2,6) (6,7) (1,2) (1,7) (3,6);
+
+set Dp := 4 7;
+set Df := 4 7;
+set Dl := vn1_1 vn1_3 vn2_1 vn2_3 vn3_1 vn3_3 vn4_1 vn4_3 vn5_1 vn5_3 vn6_1 vn6_3 vn7_1 vn7_3 vn8_1 vn8_3;
+set Dlog[vn1] := vn1_1 vn1_3;
+set Dlog[vn2] := vn2_1 vn2_3;
+set Dlog[vn3] := vn3_1 vn3_3;
+set Dlog[vn4] := vn4_1 vn4_3;
+set Dlog[vn5] := vn5_1 vn5_3;
+set Dlog[vn6] := vn6_1 vn6_3;
+set Dlog[vn7] := vn7_1 vn7_3;
+set Dlog[vn8] := vn8_1 vn8_3;
+
+set GEO[vn1_1] := 7;
+set GEO[vn1_2] := 3 6;
+set GEO[vn1_3] := 4;
+set GEO[vn1_4] := 3 2;
+set GEO[vn2_1] := 7;
+set GEO[vn2_2] := 6 1;
+set GEO[vn2_3] := 4;
+set GEO[vn2_4] := 6 3;
+set GEO[vn3_1] := 7;
+set GEO[vn3_2] := 5 6;
+set GEO[vn3_3] := 4;
+set GEO[vn3_4] := 5 1;
+set GEO[vn4_1] := 7;
+set GEO[vn4_2] := 5 3;
+set GEO[vn4_3] := 4;
+set GEO[vn4_4] := 3 2;
+set GEO[vn5_1] := 7;
+set GEO[vn5_2] := 3 6;
+set GEO[vn5_3] := 4;
+set GEO[vn5_4] := 6 2;
+set GEO[vn6_1] := 7;
+set GEO[vn6_2] := 6 1;
+set GEO[vn6_3] := 4;
+set GEO[vn6_4] := 2 6;
+set GEO[vn7_1] := 7;
+set GEO[vn7_2] := 1 6;
+set GEO[vn7_3] := 4;
+set GEO[vn7_4] := 1 5;
+set GEO[vn8_1] := 7;
+set GEO[vn8_2] := 1 3;
+set GEO[vn8_3] := 4;
+set GEO[vn8_4] := 5 3;
+param Kmax := 5;
+# cost for each link
+param r :
+ 1 2 3 4 5 6 7 :=
+1 1 1 1 1 1 1 1
+2 1 1 1 1 1 1 1
+3 1 1 1 1 1 1 1
+4 1 1 1 1 1 1 1
+5 1 1 1 1 1 1 1
+6 1 1 1 1 1 1 1
+7 1 1 1 1 1 1 1
+;
+
+
+# cost for each node
+param h :=
+1 1
+2 1
+3 1
+4 1
+5 1
+6 1
+7 1
+;
+
+# cost for data center
+param g :=
+4 2
+7 2
+;
+
+param R :=
+0 1
+1 1
+2 1
+3 1
+4 1
+5 1
+;
+
+param H :=
+0 1
+1 1
+2 1
+3 1
+4 1
+5 1
+;
+param G :=
+0 1
+1 1
+2 1
+3 1
+4 1
+5 1
+;
+
+param alpha :=
+vn1 1
+vn2 1
+vn3 1
+vn4 1
+vn5 1
+vn6 1
+vn7 1
+vn8 1
+;
+

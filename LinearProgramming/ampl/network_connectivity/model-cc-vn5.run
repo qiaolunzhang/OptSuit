@@ -1,0 +1,60 @@
+reset;
+# timing = 1: writes time in seconds to stdout
+# memoryemphasis: whether to compress data to reduce the memory used,
+#       which may make some infomation unavailable (e.g.) basis condition unavailable
+#       0 = no(default), 1 = yes
+# mipinterval: Frequency of node logging for mipdisplay >= 2.
+#                       Default = 0 ==> automatic choice.  Values n > 0 ==>
+#                       every n nodes and every new incumbent; n < 0 ==> less
+#                       frequently the more negative n is.
+option cplex_options 'timing 1 memoryemphasis 1 mipinterval 200';
+# changing the times option from its default of 0 to any nonzero value, you request a
+# summary of the AMPL translator's time and memory requirements
+option times 1;	
+# if it's not 0, we get a more detailed summary of resources that ampl uses
+option gentimes 1;
+# summary statistics on the size of the optimization
+option show_stats 1;
+# todo: the meaning of the following two lines?
+#option log_model20 1;  
+#option log_data20 1;
+display ctime();
+
+
+option solver cplex;
+model model-cc.mod;
+#data seven_node_stages5_vn5.dat;
+data model-cc.dat;
+solve;
+
+for {(s,t) in El} 
+{
+    #printf "Virtual link state (%s,%s,%d)\n",s,t,beta_log[s,t,0];
+
+    for {(i,j) in Ep}
+    {
+        if q[i,j,s,t,0] == 1 then
+        {
+            printf "Mapping edge (%s,%s,%d,%d,%d)\n",s,t,i,j,beta_log[s,t,0]; 
+            #if beta_log[s,t,0] == 1 then
+            #{
+            	printf "Phisical link state (%d,%d,%d)\n",i,j,beta[i,j,0]; 	
+            #}
+            
+        }
+    }
+}
+
+for {(s,t) in El} 
+{
+
+   if beta_log[s,t,0] == 1 then
+   {
+   		printf "Virtual link state (%s,%s,%d)\n",s,t,beta_log[s,t,0]; 
+    }
+}
+
+#for {(i,j) in Ep diff Ef}
+#{
+#	printf "Physical link state(%d,%d,%d)\n", i, j, p[i,j,0];
+#}

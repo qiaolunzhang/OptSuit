@@ -1,0 +1,6 @@
+for {(s,t) in El_u, p in 1..n_path[s,t]} {
+    #display sum{(i,j) in Ep: (i,j) in path_link[s,t,p]} (1+phi2[i,j]) +  sum{(s1,i) in AE: (s1,i) in path_link[s,t,p]} phi3[s,t,s1,i] - phi1[s,t];
+    #display sum{(i,j) in Ep: (i,j) in path_link[s,t,p]} phi2[i,j] + c[s,t,p] +  sum{(s1,i) in AE: (s1,i) in path_link[s,t,p]} phi3[s,t,s1,i] - phi1[s,t];
+    display s,t,p,sum{(i,j) in Ep: (i,j) in path_link[s,t,p]} phi2[i,j] + c[s,t,p] +  sum{(s1,i) in AE: (s1,i) in path_link[s,t,p]} phi3[s,t,s1,i] - phi1[s,t];
+    #display sum{(i,j) in Ep: (i,j) in path_link[s,t,p]} phi2[i,j] + c[s,t,p] +  sum{(s1,i) in AE: (s1,i) in path_link[s,t,p]} phi3[s,t,s1,i] - phi1[s,t];
+}
