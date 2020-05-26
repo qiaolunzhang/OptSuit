@@ -6,4 +6,3 @@ Objective value is: 13
 Objective value is: 13
 Objective value is: 11
 Objective value is: 10
-Objective value is: 13
