@@ -17,33 +17,32 @@ solve master;
 
 printf "Objective value is: %s\n", sum{(s,t) in El_u, path in 1..n_path[s,t]} c[s,t,path] * q[s,t,path] >> results.txt;
 
-let {(s,t) in El_u} phi1[s,t] := flowPath[s,t].dual;
+for {(s,t) in El_u} {
+    let phi1[s,t] := flowPath[s,t].dual;
+};
 
-#for {(s,t) in El_u} {
-#    let phi1[s,t] := flowPath[s,t].dual;
-#};
+#for {(i,j) in Ep_u union AE} {
+for {(i,j) in Ep_u} {
+   let phi2[i,j] := linkCapacity[i,j].dual;
+   let phi2[j,i] := linkCapacity[i,j].dual;
+};
 
-let {(i,j) in Ep_u} phi2[i,j] := linkCapacity[i,j].dual;
-let {(i,j) in Ep_u} phi2[j,i] := linkCapacity[i,j].dual;
+for {(s,t) in El_u, (s1,i) in AE} {
+   let phi3[s,t,s1,i] := flowNodeMapping[s,t,s1,i].dual; 
+   let phi3[s,t,i,s1] := flowNodeMapping[s,t,s1,i].dual;
+};
 
-#for {(i,j) in Ep_u} {
-#   let phi2[i,j] := linkCapacity[i,j].dual;
-#   let phi2[j,i] := linkCapacity[i,j].dual;
-#};
+display q.rc;
 
+for {(s,t) in El_u, p in 1..n_path[s,t]} {
+    #printf "(%s, %s, %s, %s)\n", s,t,p,sum{(i,j) in Ep: (i,j) in path_link[s,t,p]} phi2[i,j] + c[s,t,p] -  sum{(s1,i) in AE: (s1,i) in path_link[s,t,p]} phi3[s,t,s1,i] - phi1[s,t];
 
-let {(s,t) in El_u, (s1,i) in AE} phi3[s,t,s1,i] := flowNodeMapping[s,t,s1,i].dual; 
-let {(s,t) in El_u, (s1,i) in AE} phi3[s,t,i,s1] := flowNodeMapping[s,t,s1,i].dual; 
+    printf "(%s, %s, %s, %s)\n", s,t,p,-sum{(i,j) in Ep: (i,j) in path_link[s,t,p]} phi2[i,j] + c[s,t,p] -  sum{(s1,i) in AE: (s1,i) in path_link[s,t,p]} phi3[s,t,s1,i] - phi1[s,t];
+    #display sum{(i,j) in Ep: (i,j) in path_link[s,t,p]} phi2[i,j] + c[s,t,p] +  sum{(s1,i) in AE: (s1,i) in path_link[s,t,p]} phi3[s,t,s1,i] - phi1[s,t];
+}
 
-#for {(s,t) in El_u, (s1,i) in AE} {
-#   let phi3[s,t,s1,i] := flowNodeMapping[s,t,s1,i].dual; 
-#   let phi3[s,t,i,s1] := flowNodeMapping[s,t,s1,i].dual;
-#};
-
-#display q.rc;
-
-#for {(s,t) in El_u, p in 1..n_path[s,t]} {
-#    printf "(%s, %s, %s, %s)\n", s,t,p,-sum{(i,j) in Ep: (i,j) in path_link[s,t,p]} phi2[i,j] + c[s,t,p] -  sum{(s1,i) in AE: (s1,i) in path_link[s,t,p]} phi3[s,t,s1,i] - phi1[s,t];
+#if (loop_time = 5) then {
+#    break;
 #}
 
 for {(s, t) in El_u} {
@@ -55,10 +54,10 @@ for {(s, t) in El_u} {
     solve pricing;
     display reducedCostValue;
     if (reducedCostValue < 0) then {
-        #display source;
-        #display dest;
-        #display reducedCostValue;
-        #display n_path[source,dest];
+        display source;
+        display dest;
+        display reducedCostValue;
+        display n_path[source,dest];
         let kth_path := n_path[source,dest] + 1;
         #let n_path[source,dest] := n_path[source,dest] + 1;
         let n_path[source,dest] := kth_path;
@@ -72,15 +71,13 @@ for {(s, t) in El_u} {
         let path_link[source,dest,n_path[source,dest]] := path_link[source,dest,n_path[source,dest]]
             union setof {i in GEO[dest] : f[i,dest] = 1} (dest,i); 
         
-        let {s1 in Nl, i1 in GEO[s1]} delta[source,dest,s1,i1,kth_path] := 0;
-        #for {s1 in Nl, i1 in GEO[s1]} {
-        #    let delta[source,dest,s1,i1,kth_path] := 0;
-        #}
+        for {s1 in Nl, i1 in GEO[s1]} {
+            let delta[source,dest,s1,i1,kth_path] := 0;
+        }
 
-        let {(s1,i) in path_link[source,dest,kth_path]: s1 in Nl} delta[source,dest,s1,i,kth_path] := 1;
-        #for {(s1,i) in path_link[source,dest,kth_path]: s1 in Nl} {
-        #    let delta[source,dest,s1,i,kth_path] := 1;
-        #}
+        for {(s1,i) in path_link[source,dest,kth_path]: s1 in Nl} {
+            let delta[source,dest,s1,i,kth_path] := 1;
+        }
         let c[source,dest,kth_path] := -2 + sum{(i,j) in path_link[source,dest,kth_path]} 1;
         #for {(i,j) in El_u} {
         #    if f[i,j] = 1 then {
@@ -88,7 +85,7 @@ for {(s, t) in El_u} {
         #            union setof {(i,j) in E} (i,j);
         #    }
         #}
-        #display source, dest, reducedCostValue;
+        display source, dest, reducedCostValue;
         break;
     };
     #display reducedCostValue;

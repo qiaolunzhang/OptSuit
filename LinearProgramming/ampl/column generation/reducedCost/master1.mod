@@ -49,12 +49,12 @@ param delta{(s,t) in El_u, AE, 1..n_path[s,t]} binary, default 0;
 # delta: the node mapping for a path
 
 
-#minimize cost:
-#    sum{(s,t) in El_u, path in 1..n_path[s,t]} c[s,t,path] * q[s,t,path]
-#;
-maximize cost:
-    sum{(s,t) in El_u, path in 1..n_path[s,t]} q[s,t,path]
+minimize cost:
+    sum{(s,t) in El_u, path in 1..n_path[s,t]} c[s,t,path] * q[s,t,path]
 ;
+#maximize cost:
+#    sum{(s,t) in El_u, path in 1..n_path[s,t]} q[s,t,path]
+#;
 
 # a physical node can be mapped to at most one virtual node in a virtual network
 s.t. atMostOnePhysicNode {i in Np, v in V}:
@@ -73,7 +73,7 @@ s.t. LogicNodeMapping1 {s in Nl}:
 #	sum{i in GEO[s]} m[s,i] = 1;
 
 s.t. flowPath {(s,t) in El_u}:
-    sum{path in 1..n_path[s,t]} q[s,t,path] <= 1;
+    sum{path in 1..n_path[s,t]} q[s,t,path] = 1;
 ;
 
 # if it's not an optical network and the traffic is unsplitable, we only need to add another

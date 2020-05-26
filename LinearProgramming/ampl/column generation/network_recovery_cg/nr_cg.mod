@@ -39,14 +39,20 @@ param L;
 set path_link {(s,t) in El_u, 1..n_path[s,t]} within (Ep union AE);
 
 #var q
-#var q{(s,t) in El_u, 1..n_path[s,t]} binary;
-var q{(s,t) in El_u, 1..n_path[s,t]} <=1, >=0;
+var q{(s,t) in El_u, 1..n_path[s,t]} binary;
+#var q{(s,t) in El_u, 1..n_path[s,t]} <=1, >=0;
 # 1 if the virtual node s is mapped to the physical node i
 # todo: check whether we need to replace GEO[s] with Np
-var m{s in Nl, i in GEO[s]} <=1, >=0;
+var m{s in Nl, i in GEO[s]} binary;
+#var m{s in Nl, i in GEO[s]} <=1, >=0;
 
 var beta{Ep} binary;
 var beta_log{El} binary;
+
+# whether node n is repaired in stage k
+var z{Np} binary;
+# whether link i,j is repaired in stage k
+var p{Ep} binary;
 
 param delta{(s,t) in El_u, AE, 1..n_path[s,t]} binary, default 0;
 
@@ -57,8 +63,43 @@ param delta{(s,t) in El_u, AE, 1..n_path[s,t]} binary, default 0;
 
 
 minimize cost:
+    #sum{(i,j) in Ep} (1-beta[i,j])
     sum{(s,t) in El_u, path in 1..n_path[s,t]} c[s,t,path] * q[s,t,path]
 ;
+
+# initialization of working physical nodes/links/dcs
+subject to init_link_working1 {(i,j) in Ep diff Ef}:
+    p[i,j] = 1
+;
+
+
+subject to init_link_not_working {(i,j) in Ef}:
+    p[i,j] = 0
+;
+
+subject to init_node_working1 {i in Np diff Nf}:
+    z[i] = 1
+;
+
+subject to init_node_not_working {i in Nf}:
+    z[i] = 0
+;
+
+#subject to check_working_link1 {(i,j) in Ep}:
+#    beta[i,j] <= p[i,j]
+#;
+
+#s.t. check_working_link2 {(i,j) in Ep}:
+#    beta[i,j] <= z[i]
+#;
+
+#s.t. check_working_link3 {(i,j) in Ep}:
+#    beta[i,j] <= z[j]
+#;
+
+#s.t. check_working_link4 {(i,j) in Ep}:
+#    beta[i,j] >= p[i,j]+z[i]+z[j] - 2
+#;
 
 # a physical node can be mapped to at most one virtual node in a virtual network
 s.t. atMostOnePhysicNode {i in Np, v in V}:
@@ -100,4 +141,6 @@ s.t. flowNodeMapping {(s,t) in El_u, (s1,i) in AE}:
 #    sum{path in 1..n_path[s,t]} delta[s,t,i,path] * q[s,t,path] <= m[t,i]
 #;
 
-problem master: q, m, cost, atMostOnePhysicNode,LogicNodeMapping1,flowPath,linkCapacity,flowNodeMapping;
+problem master: q, m, cost, atMostOnePhysicNode,LogicNodeMapping1,flowPath,linkCapacity,flowNodeMapping,
+                init_link_working1, init_link_not_working, init_node_working1, init_node_not_working
+                #,check_working_link1, check_working_link2, check_working_link3, check_working_link4;

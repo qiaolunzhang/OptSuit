@@ -7,10 +7,12 @@ set AE_path within {Nl, Np} union {Np, Nl} := setof{i in GEO[source]} (source,i)
     setof{i in GEO[dest]} (i,dest);
 #set AE_path within {Nl, Np} union {Np, Nl} := setof{i in GEO[source]} (source,i) union{i in GEO[dest]} (i,dest);
 
-param phi1{El_u} default 0;
+param phi1{El_u,K} default 0;
 #param phi2{Ep union AE_b};
-param phi2{Ep} default 0;
-param phi3{El_u, AE_b} default 0;
+param phi2{Ep,K} default 0;
+param phi3{El_u, AE_b,K} default 0;
+#param phi4{El_u,}
+
 #param b{i in V} default if i=source then (- sum{j in V: j<>source} b[j]);
 var reducedCostValue;
 
@@ -21,8 +23,8 @@ minimize onePair:
 ;
 
 s.t. reducedCost:
-    #reducedCostValue = 1 - sum{(i,j) in Ep} (- phi2[i,j]*f[i,j]) -  sum{(s,i) in AE_path} (f[s,i] * phi3[source,dest,s,i]) - phi1[source,dest]
-    reducedCostValue = sum{(i,j) in Ep} (f[i,j] - phi2[i,j]*f[i,j]) -  sum{(s,i) in AE_path} (f[s,i] * phi3[source,dest,s,i]) - phi1[source,dest]
+    reducedCostValue = 1 - sum{(i,j) in Ep} (- phi2[i,j]*f[i,j]) -  sum{(s,i) in AE_path} (f[s,i] * phi3[source,dest,s,i]) - phi1[source,dest]
+    #reducedCostValue = sum{(i,j) in Ep} (f[i,j] - phi2[i,j]*f[i,j]) -  sum{(s,i) in AE_path} (f[s,i] * phi3[source,dest,s,i]) - phi1[source,dest]
     #reducedCostValue = sum{(i,j) in Ep} (f[i,j] + phi2[i,j]*f[i,j]) +  sum{(s,i) in AE_path} (f[s,i] * phi3[source,dest,s,i]) - phi1[source,dest]
     #reducedCostValue = sum{(i,j) in Ep union AE_path} (f[i,j] + phi2[i,j]*f[i,j]) +  sum{(s,i) in AE_path} (f[s,i] * phi3[source,dest,s,i]) - phi1[source,dest]
 ;
