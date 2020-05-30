@@ -4,9 +4,8 @@ option solver cplex;
 
 include master1.mod;
 
-include pricing.mod;
+include pricing3.mod;
 include data3.dat;
-#include data-incomplete.dat;
 
 let loop_time := 0;
 
@@ -95,7 +94,9 @@ for {(s, t) in El_u} {
     #display reducedCostValue;
 } 
 
+if (loop_time = 3) then {
 #break;
+};
 #if (reducedCostValue < 0) then {
 #    break;
 #}

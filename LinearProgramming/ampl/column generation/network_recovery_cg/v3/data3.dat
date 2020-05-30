@@ -43,17 +43,18 @@ vn2_2 vn2_3 1
 vn2_3 vn2_1 1
 ;
 
+#set Ep_u := (1,2) (2,3) (3,4) (4,5) (5,6) (6,7) (1,7) (4,6) (3,6) (2,6) (2,7);
 #set path_link[vn1_1,vn1_2,1] := (vn1_1,7) (7,6) (6,3) (3,4) (4,5) (vn1_2,5);
-set path_link[vn1_1,vn1_2,1] := (vn1_1,7) (7,6) (6,5) (vn1_2,5);
-set path_link[vn1_2,vn1_3,1] := (vn1_2,5) (5,4) (4,3) (vn1_3,3);
+set path_link[vn1_1,vn1_2,1] := (vn1_1,7) (6,7) (5,6) (vn1_2,5);
+set path_link[vn1_2,vn1_3,1] := (vn1_2,5) (4,5) (3,4) (vn1_3,3);
 set path_link[vn1_2,vn1_3,2] := (vn1_2,3) (2,3) (vn1_3,2);
 
-set path_link[vn1_3,vn1_4,1] := (vn1_3,3) (3,2) (2,1) (vn1_4,1);
+set path_link[vn1_3,vn1_4,1] := (vn1_3,3) (2,3) (1,2) (vn1_4,1);
 set path_link[vn1_4,vn1_1,1] := (vn1_4,1) (1,7) (vn1_1,7);
 
-set path_link[vn2_1,vn2_2,1] := (vn2_1,7) (7,6) (6,5) (vn2_2,5);
-set path_link[vn2_2,vn2_3,1] := (vn2_2,5) (5,4) (vn2_3,4);
-set path_link[vn2_3,vn2_1,1] := (vn2_3,4) (4,3) (3,2) (2,7) (vn2_1,7);
+set path_link[vn2_1,vn2_2,1] := (vn2_1,7) (6,7) (5,6) (vn2_2,5);
+set path_link[vn2_2,vn2_3,1] := (vn2_2,5) (4,5) (vn2_3,4);
+set path_link[vn2_3,vn2_1,1] := (vn2_3,4) (3,4) (2,3) (2,7) (vn2_1,7);
 
 
 param L := 30;

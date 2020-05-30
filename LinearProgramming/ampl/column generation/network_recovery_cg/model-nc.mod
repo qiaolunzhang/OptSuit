@@ -309,22 +309,3 @@ s.t. continuity5 {(i,j) in Ep, l in L, k in K}:
 # todo: I think there is no need to keep this one
 s.t. continuity6 {(i,j) in Ep, (s,t) in El, l in L, k in K}:
 	w[i,j,s,t,l,k] - w[j,i,t,s,l,k] = 0;
-
-
-# Initialization
-s.t. init_m {i in Np, s in Nl, k in K}:
-	m_t[i,s,k] <= m_s[i,s]
-;
-
-s.t. init_q {(i,j) in Ep, (s,t) in El, k in K}:
-	q_t[i,j,s,t,k] <= q_s[i,j,s,t]
-;
-
-# delete unnecessary constraints
-#s.t. init_w {(i,j) in A, (s,t) in B, l in L}:
-#	w[i,j,s,t,l,0] <= w_s[i,j,s,t,l]
-#;
-
-s.t. init_x {(s,t) in El, l in L, k in K}:
-	x[s,t,l,k] <=  x_s[s,t,l]
-;

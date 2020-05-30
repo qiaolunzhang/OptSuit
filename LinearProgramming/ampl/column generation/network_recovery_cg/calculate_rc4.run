@@ -1,0 +1,33 @@
+reset;
+
+option solver cplex;
+
+include nr_cg4.mod;
+
+#include pricing.mod;
+include data3.dat;
+
+#let loop_time := 0;
+
+
+#let loop_time := loop_time + 1;
+    
+#solve master;
+solve master;
+
+
+#display q.rc;
+
+#for {(s,t) in El_u, p in 1..n_path[s,t]} {
+    #printf "(%s, %s, %s, %s)\n", s,t,p,sum{(i,j) in Ep: (i,j) in path_link[s,t,p]} phi2[i,j] + c[s,t,p] -  sum{(s1,i) in AE: (s1,i) in path_link[s,t,p]} phi3[s,t,s1,i] - phi1[s,t];
+
+#    printf "(%s, %s, %s, %s)\n", s,t,p,-sum{(i,j) in Ep_u: (i,j) in path_link[s,t,p]} linkCapacity[i,j].dual + c[s,t,p] -  sum{(s1,i) in AE: (s1,i) in path_link[s,t,p]} flowNodeMapping[s,t,s1,i].dual - flowPath[s,t].dual;;
+    #display sum{(i,j) in Ep: (i,j) in path_link[s,t,p]} phi2[i,j] + c[s,t,p] +  sum{(s1,i) in AE: (s1,i) in path_link[s,t,p]} phi3[s,t,s1,i] - phi1[s,t];
+#}
+
+display q.rc;
+
+for {(s,t) in El_u, path in 1..n_path[s,t], k in K} {
+
+    printf "(%s, %s, %s, %s, %s)\n", s,t,path,k, 1 - sum{(i,j) in Ep_u: (i,j) in path_link[s,t,path] or (j,i) in path_link[s,t,path]} linkCapacity[i,j,k].dual  -  sum{(s1,i) in AE: (s1,i) in path_link[s,t,path]} flowNodeMapping[s,t,s1,i,k].dual - flowPath[s,t,k].dual
+}

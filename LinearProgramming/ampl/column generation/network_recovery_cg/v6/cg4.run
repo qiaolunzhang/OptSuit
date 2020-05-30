@@ -2,11 +2,10 @@ reset;
 
 option solver cplex;
 
-include master1.mod;
+include nr_cg4.mod;
 
 include pricing.mod;
 include data3.dat;
-#include data-incomplete.dat;
 
 let loop_time := 0;
 
@@ -16,16 +15,16 @@ let loop_time := loop_time + 1;
     
 solve master;
 
-printf "Objective value is: %s\n", sum{(s,t) in El_u, path in 1..n_path[s,t]} c[s,t,path] * q[s,t,path] >> results.txt;
+printf "Objective value is: %s\n", sum{(s,t) in El_u, path in 1..n_path[s,t], k in K} -q[s,t,path,k] >> results.txt;
 
-let {(s,t) in El_u} phi1[s,t] := flowPath[s,t].dual;
+let {(s,t) in El_u, k in K} phi1[s,t,k] := flowPath[s,t,k].dual;
 
 #for {(s,t) in El_u} {
 #    let phi1[s,t] := flowPath[s,t].dual;
 #};
 
-let {(i,j) in Ep_u} phi2[i,j] := linkCapacity[i,j].dual;
-let {(i,j) in Ep_u} phi2[j,i] := linkCapacity[i,j].dual;
+let {(i,j) in Ep_u,k in K} phi2[i,j,k] := linkCapacity[i,j,k].dual;
+let {(i,j) in Ep_u,k in K} phi2[j,i,k] := linkCapacity[i,j,k].dual;
 
 #for {(i,j) in Ep_u} {
 #   let phi2[i,j] := linkCapacity[i,j].dual;
@@ -33,8 +32,8 @@ let {(i,j) in Ep_u} phi2[j,i] := linkCapacity[i,j].dual;
 #};
 
 
-let {(s,t) in El_u, (s1,i) in AE} phi3[s,t,s1,i] := flowNodeMapping[s,t,s1,i].dual; 
-let {(s,t) in El_u, (s1,i) in AE} phi3[s,t,i,s1] := flowNodeMapping[s,t,s1,i].dual; 
+let {(s,t) in El_u, (s1,i) in AE,k in K} phi3[s,t,s1,i,k] := flowNodeMapping[s,t,s1,i,k].dual; 
+let {(s,t) in El_u, (s1,i) in AE,k in K} phi3[s,t,i,s1,k] := flowNodeMapping[s,t,s1,i,k].dual; 
 
 #for {(s,t) in El_u, (s1,i) in AE} {
 #   let phi3[s,t,s1,i] := flowNodeMapping[s,t,s1,i].dual; 
@@ -43,18 +42,27 @@ let {(s,t) in El_u, (s1,i) in AE} phi3[s,t,i,s1] := flowNodeMapping[s,t,s1,i].du
 
 #display q.rc;
 
-#for {(s,t) in El_u, p in 1..n_path[s,t]} {
-#    printf "(%s, %s, %s, %s)\n", s,t,p,-sum{(i,j) in Ep: (i,j) in path_link[s,t,p]} phi2[i,j] + c[s,t,p] -  sum{(s1,i) in AE: (s1,i) in path_link[s,t,p]} phi3[s,t,s1,i] - phi1[s,t];
+#for {(s,t) in El_u, path in 1..n_path[s,t],k in K} {
+#    printf "(%s, %s, %s, %s, %s)\n", s,t,path,k,-1 - sum{(i,j) in Ep: (i,j) in path_link[s,t,path]} phi2[i,j,k] -  sum{(s1,i) in AE: (s1,i) in path_link[s,t,path]} phi3[s,t,s1,i,k] - phi1[s,t,k];
 #}
 
-for {(s, t) in El_u} {
+#break;
+
+
+for {(s, t) in El_u, k in K} {
 
     let source := s;
     let dest := t;
+    let stage := k;
     #let AE_path := setof{i in GEO[source]} (source,i) union
     #    setof{i in GEO[dest]} (i,dest);
     solve pricing;
     display reducedCostValue;
+    
+    if (loop_time = 3) then {
+    #break;
+	}
+    
     if (reducedCostValue < 0) then {
         #display source;
         #display dest;
@@ -90,13 +98,13 @@ for {(s, t) in El_u} {
         #    }
         #}
         #display source, dest, reducedCostValue;
-        break;
+		break;
     };
     #display reducedCostValue;
 } 
 
-#break;
-#if (reducedCostValue < 0) then {
-#    break;
-#}
+if (loop_time = 3) then {
+    #break;
+}
+
 } while reducedCostValue < 0;

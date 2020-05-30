@@ -1,7 +1,5 @@
 data;
 
-set K := 0 1 2 3;
-param Kmax := 3;
 set Np := 1 2 3 4 5 6 7;
 # all logical nodes
 set Nl := vn1_1 vn1_2 vn1_3 vn1_4 vn2_1 vn2_2 vn2_3;
@@ -21,10 +19,6 @@ set Nlog[vn2] := vn2_1 vn2_2 vn2_3;
 set Elog[vn1] := (vn1_1,vn1_2) (vn1_2,vn1_3) (vn1_3,vn1_4) (vn1_4,vn1_1) (vn1_1,vn1_4) (vn1_4,vn1_3) (vn1_3,vn1_2) (vn1_2,vn1_1);
 set Elog[vn2] := (vn2_1,vn2_2) (vn2_2,vn2_3) (vn2_3,vn2_1) (vn2_1,vn2_3) (vn2_3,vn2_2) (vn2_2,vn2_1);
 
-set Nf := 1 2 3 6;
-set Ef_u := (1,2) (5,6);
-
-
 set GEO[vn1_1] := 7;
 set GEO[vn1_2] := 3 5;
 set GEO[vn1_3] := 2 3;
@@ -34,7 +28,7 @@ set GEO[vn2_2] := 5;
 set GEO[vn2_3] := 4;
 
 param n_path :=
-vn1_1 vn1_2 1
+vn1_1 vn1_2 0
 vn1_2 vn1_3 2
 vn1_3 vn1_4 1 
 vn1_4 vn1_1 1 
@@ -44,7 +38,7 @@ vn2_3 vn2_1 1
 ;
 
 #set path_link[vn1_1,vn1_2,1] := (vn1_1,7) (7,6) (6,3) (3,4) (4,5) (vn1_2,5);
-set path_link[vn1_1,vn1_2,1] := (vn1_1,7) (7,6) (6,5) (vn1_2,5);
+#set path_link[vn1_1,vn1_2,1] := (vn1_1,7) (7,6) (6,5) (vn1_2,5);
 set path_link[vn1_2,vn1_3,1] := (vn1_2,5) (5,4) (4,3) (vn1_3,3);
 set path_link[vn1_2,vn1_3,2] := (vn1_2,3) (2,3) (vn1_3,2);
 
@@ -62,7 +56,7 @@ param L := 30;
 
 #param delta
 param delta :=
-vn1_1 vn1_2 vn1_1 7 1 1
+#vn1_1 vn1_2 vn1_1 7 1 1
 vn1_1 vn1_2 vn1_2 5 1 1
 vn1_2 vn1_3 vn1_2 5 1 1
 vn1_2 vn1_3 vn1_3 3 1 1
@@ -89,7 +83,7 @@ vn2_3 vn2_1 vn2_1 7 1 1
 
 #param c
 param c :=
-vn1_1 vn1_2 1 2
+#vn1_1 vn1_2 1 2
 vn1_2 vn1_3 1 2
 vn1_2 vn1_3 2 1
 vn1_3 vn1_4 1 2
@@ -99,51 +93,5 @@ vn2_2 vn2_3 1 1
 vn2_3 vn2_1 1 3
 ;
 
-#param source := vn1_1;
-#param dest := vn1_2;
-
-param r :
- 1 2 3 4 5 6 7 :=
-1 1 1 1 1 1 1 1
-2 1 1 1 1 1 1 1
-3 1 1 1 1 1 1 1
-4 1 1 1 1 1 1 1
-5 1 1 1 1 1 1 1
-6 1 1 1 1 1 1 1
-7 1 1 1 1 1 1 1
-;
-
-
-# cost for each node
-param h :=
-1 1
-2 1
-3 1
-4 1
-5 1
-6 1
-7 1
-;
-
-
-param R :=
-0 0
-1 1
-2 1
-3 1
-4 1
-5 1
-;
-
-param H :=
-0 0
-1 1
-2 1
-3 1
-4 1
-5 1
-;
-
 param source := vn1_1;
 param dest := vn1_2;
-param stage := 0;

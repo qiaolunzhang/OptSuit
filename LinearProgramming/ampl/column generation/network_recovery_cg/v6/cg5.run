@@ -1,0 +1,92 @@
+reset;
+
+option solver cplex;
+
+include nr_cg4.mod;
+
+include pricing1.mod;
+include data4.dat;
+
+param flag binary;
+
+let loop_time := 0;
+
+repeat {
+
+let loop_time := loop_time + 1;
+    
+solve master;
+
+printf "Objective value is: %s\n", sum{(s,t) in El_u, path in 1..n_path[s,t], k in K} -q[s,t,path,k] >> results.txt;
+
+let {(s,t) in El_u, k in K} phi1[s,t,k] := flowPath[s,t,k].dual;
+
+#for {(s,t) in El_u} {
+#    let phi1[s,t] := flowPath[s,t].dual;
+#};
+
+let {(i,j) in Ep_u,k in K} phi2[i,j,k] := linkCapacity[i,j,k].dual;
+let {(i,j) in Ep_u,k in K} phi2[j,i,k] := linkCapacity[i,j,k].dual;
+
+#for {(i,j) in Ep_u} {
+#   let phi2[i,j] := linkCapacity[i,j].dual;
+#   let phi2[j,i] := linkCapacity[i,j].dual;
+#};
+
+
+let {(s,t) in El_u, (s1,i) in AE,k in K} phi3[s,t,s1,i,k] := flowNodeMapping[s,t,s1,i,k].dual; 
+let {(s,t) in El_u, (s1,i) in AE,k in K} phi3[s,t,i,s1,k] := flowNodeMapping[s,t,s1,i,k].dual; 
+
+#for {(s,t) in El_u, (s1,i) in AE} {
+#   let phi3[s,t,s1,i] := flowNodeMapping[s,t,s1,i].dual; 
+#   let phi3[s,t,i,s1] := flowNodeMapping[s,t,s1,i].dual;
+#};
+
+#display q.rc;
+
+#for {(s,t) in El_u, path in 1..n_path[s,t],k in K} {
+#    printf "(%s, %s, %s, %s, %s)\n", s,t,path,k,-1 - sum{(i,j) in Ep: (i,j) in path_link[s,t,path]} phi2[i,j,k] -  sum{(s1,i) in AE: (s1,i) in path_link[s,t,path]} phi3[s,t,s1,i,k] - phi1[s,t,k];
+#}
+
+#break;
+
+let flag := 0;
+for {k in K} {
+	let stage := k;
+	solve pricing;
+	if (reducedCostValue < 0) then {
+		let flag := 1;
+		for {(s,t) in setof {(s,t) in El_u: f_val[s,t]=1} (s,t)} {
+			let source := s;
+			let dest := t;
+			
+	        let kth_path := n_path[source,dest] + 1;
+	        let n_path[source,dest] := kth_path;
+	        
+	        let path_link[source,dest,n_path[source,dest]] := setof {i in GEO[source]: f[source, i,source,dest]=1} (source,i); 
+	        let path_link[source,dest,n_path[source,dest]] := path_link[source,dest,n_path[source,dest]]
+	            union setof {(i,j) in Ep_u: f[i,j,source,dest] = 1 or f[j,i,source,dest] = 1} (i,j); 
+	        let path_link[source,dest,n_path[source,dest]] := path_link[source,dest,n_path[source,dest]]
+	            union setof {i in GEO[dest] : f[i,dest,source,dest] = 1} (dest,i); 
+	        
+	        let {s1 in Nl, i1 in GEO[s1]} delta[source,dest,s1,i1,kth_path] := 0;
+	
+	
+	        let {(s1,i) in path_link[source,dest,kth_path]: s1 in Nl} delta[source,dest,s1,i,kth_path] := 1;
+	
+	        let c[source,dest,kth_path] := -2 + sum{(i,j) in path_link[source,dest,kth_path]} 1;
+		};
+		break;
+	};
+	
+	#if (flag = 1) then {
+	#	break;
+	#};
+};
+
+if (loop_time = 3) then {
+    #break;
+}
+
+} while flag = 1;
+#} while reducedCostValue < 0;

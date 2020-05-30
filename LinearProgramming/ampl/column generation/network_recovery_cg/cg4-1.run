@@ -1,0 +1,46 @@
+reset;
+
+option solver cplex;
+
+include nr_cg4.mod;
+
+include pricing.mod;
+include data3.dat;
+
+let loop_time := 0;
+
+
+let loop_time := loop_time + 1;
+    
+solve master;
+
+printf "Objective value is: %s\n", sum{(s,t) in El_u, path in 1..n_path[s,t], k in K} -q[s,t,path,k] >> results.txt;
+
+let {(s,t) in El_u, k in K} phi1[s,t,k] := flowPath[s,t,k].dual;
+
+#for {(s,t) in El_u} {
+#    let phi1[s,t] := flowPath[s,t].dual;
+#};
+
+let {(i,j) in Ep_u,k in K} phi2[i,j,k] := linkCapacity[i,j,k].dual;
+let {(i,j) in Ep_u,k in K} phi2[j,i,k] := linkCapacity[i,j,k].dual;
+
+#for {(i,j) in Ep_u} {
+#   let phi2[i,j] := linkCapacity[i,j].dual;
+#   let phi2[j,i] := linkCapacity[i,j].dual;
+#};
+
+
+let {(s,t) in El_u, (s1,i) in AE,k in K} phi3[s,t,s1,i,k] := flowNodeMapping[s,t,s1,i,k].dual; 
+let {(s,t) in El_u, (s1,i) in AE,k in K} phi3[s,t,i,s1,k] := flowNodeMapping[s,t,s1,i,k].dual; 
+
+#for {(s,t) in El_u, (s1,i) in AE} {
+#   let phi3[s,t,s1,i] := flowNodeMapping[s,t,s1,i].dual; 
+#   let phi3[s,t,i,s1] := flowNodeMapping[s,t,s1,i].dual;
+#};
+
+display q.rc;
+
+for {(s,t) in El_u, path in 1..n_path[s,t],k in K} {
+    printf "(%s, %s, %s, %s, %s)\n", s,t,path,k,-1 - sum{(i,j) in Ep: (i,j) in path_link[s,t,path]} phi2[i,j,k] -  sum{(s1,i) in AE: (s1,i) in path_link[s,t,path]} phi3[s,t,s1,i,k] - phi1[s,t,k];
+}

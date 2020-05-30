@@ -1,0 +1,12 @@
+#for {k in K} {	display sum{(s,t) in El_u, path in 1..n_path[s,t]} -q_int[s,t,path,k];}
+#set path_link[vn1_2,vn1_3,5] := (vn1_2,5) (5,6) (3,6) (vn1_3,3);
+
+#for {(s,t) in El_u, path in 1..n_path[s,t],k in K} {
+#    printf "(%s, %s, %s, %s, %s)\n", s,t,path,k,-1 - sum{(i,j) in Ep: (i,j) in path_link[s,t,path]} phi2[i,j,k] -  sum{(s1,i) in AE: (s1,i) in path_link[s,t,path]} phi3[s,t,s1,i,k] - phi1[s,t,k];
+#}
+
+for {k in K} {
+display -1 - sum{(i,j) in Ep: (i,j) in path_link['vn1_2','vn1_3',5]} phi2[i,j,k] 
+		-  sum{(s1,i) in AE: (s1,i) in path_link['vn1_2','vn1_3',5]} phi3['vn1_2','vn1_3',s1,i,k] 
+		- phi1['vn1_2','vn1_3',k]
+};

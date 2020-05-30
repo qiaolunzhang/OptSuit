@@ -21,7 +21,7 @@ set Nlog[vn2] := vn2_1 vn2_2 vn2_3;
 set Elog[vn1] := (vn1_1,vn1_2) (vn1_2,vn1_3) (vn1_3,vn1_4) (vn1_4,vn1_1) (vn1_1,vn1_4) (vn1_4,vn1_3) (vn1_3,vn1_2) (vn1_2,vn1_1);
 set Elog[vn2] := (vn2_1,vn2_2) (vn2_2,vn2_3) (vn2_3,vn2_1) (vn2_1,vn2_3) (vn2_3,vn2_2) (vn2_2,vn2_1);
 
-set Nf := 1 2 3 6;
+set Nf := 1 2 3 4 5 6;
 set Ef_u := (1,2) (5,6);
 
 

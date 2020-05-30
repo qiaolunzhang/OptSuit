@@ -21,7 +21,9 @@ minimize onePair:
 ;
 
 s.t. reducedCost:
-    reducedCostValue = -1 - sum{(i,j) in Ep} (phi2[i,j,stage]*f[i,j]) -  sum{(s,i) in AE_path} (f[s,i] * phi3[source,dest,s,i,stage]) - phi1[source,dest,stage]
+    reducedCostValue = -1 - sum{(i,j) in Ep} (phi2[i,j,stage]*f[i,j]) 
+    		-  sum{(s,i) in AE_path} (f[s,i] * phi3[source,dest,s,i,stage]) 
+    		- phi1[source,dest,stage]
     #reducedCostValue = sum{(i,j) in Ep} (f[i,j] - phi2[i,j]*f[i,j]) -  sum{(s,i) in AE_path} (f[s,i] * phi3[source,dest,s,i]) - phi1[source,dest]
     #reducedCostValue = sum{(i,j) in Ep} (f[i,j] + phi2[i,j]*f[i,j]) +  sum{(s,i) in AE_path} (f[s,i] * phi3[source,dest,s,i]) - phi1[source,dest]
     #reducedCostValue = sum{(i,j) in Ep union AE_path} (f[i,j] + phi2[i,j]*f[i,j]) +  sum{(s,i) in AE_path} (f[s,i] * phi3[source,dest,s,i]) - phi1[source,dest]
@@ -36,10 +38,8 @@ s.t. balance2:
 s.t. balance3:
 	sum{(dest,i) in Ep union AE_path} f[dest,i] - sum{(i,dest) in Ep union AE_path} f[i,dest] = -1;
 
-
 s.t. notMappedSame {i in Np: (source,i) in AE and (dest,i) in AE}:
 	f[source,i] + f[i,dest] <=1;
-	#sum{(i,j) in Ep} f[i,j] + sum{(i,j) in AE_path} f[i,j] >= 4;
 	
 s.t. oneOut {i in Np}:
 	sum{(i,j) in Ep union AE_path} f[i,j] <= 1

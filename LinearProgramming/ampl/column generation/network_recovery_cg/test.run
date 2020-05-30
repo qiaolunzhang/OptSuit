@@ -1,6 +1,32 @@
-for {(i,j) in Ep_u} {
-    printf "(i,j) = %s, %s \n", i, j;
-    for {path in 1..n_path['vn1_1', 'vn1_2']: (i,j) in path_link['vn1_1','vn1_2',path]} {
-        printf "beta_log * q = %s * %s <= beta = %s \n", beta_log['vn1_1', 'vn1_2',0], q['vn1_1','vn1_2',path,0], beta[i,j,0];
-    }
-}
+#ampl: expand q['vn1_1', 'vn1_2', 2, 0];
+#Coefficients of q['vn1_1','vn1_2',2,0]:
+#	flowPath['vn1_1','vn1_2',0]                    1
+#	linkCapacity[1,2,0]                            1
+#	linkCapacity[2,3,0]                            1
+#	linkCapacity[3,4,0]                            1
+#	linkCapacity[4,5,0]                            1
+#	linkCapacity[1,7,0]                            1
+#	flowNodeMapping['vn1_1','vn1_2','vn1_1',7,0]   1
+#	flowNodeMapping['vn1_1','vn1_2','vn1_2',5,0]   1
+#	cost                                          -1
+
+display -1 - flowPath['vn1_1','vn1_2',0].dual - linkCapacity[2,3,0].dual
+	- linkCapacity[3,4,0].dual - linkCapacity[4,5,0].dual
+	- linkCapacity[1,7,0].dual
+	- flowNodeMapping['vn1_1','vn1_2','vn1_1',7,0].dual
+	- flowNodeMapping['vn1_1','vn1_2','vn1_2',5,0].dual
+;
+
+display -1 - flowPath['vn1_1','vn1_2',0].dual
+	- linkCapacity[2,3,0].dual
+	- linkCapacity[3,4,0].dual - linkCapacity[4,5,0].dual
+	- linkCapacity[1,7,0].dual
+;
+# [*,*,2,0]
+#:     vn1_2 vn1_3    :=
+#vn1_1    2     .
+#vn1_2    .     0
+
+display -1 - phi1[source,dest,stage] - sum{(i,j) in Ep} (phi2[i,j,stage]*f[i,j])
+;
+#-1 - sum{(i,j) in Ep} (- phi2[i,j,stage]*f[i,j]) -  sum{(s,i) in AE_path} (f[s,i] * phi3[source,dest,s,i,stage]) - phi1[source,dest,stage]

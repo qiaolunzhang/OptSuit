@@ -1,0 +1,52 @@
+param loop_time integer;
+param kth_path;
+param source symbolic in Nl;
+param dest symbolic in Nl;
+set AE_b := AE union setof{(s,i) in AE} (i,s);
+set AE_path within {Nl, Np} union {Np, Nl} := setof{i in GEO[source]} (source,i) union
+    setof{i in GEO[dest]} (i,dest);
+#set AE_path within {Nl, Np} union {Np, Nl} := setof{i in GEO[source]} (source,i) union{i in GEO[dest]} (i,dest);
+
+param phi1{El_u} default 0;
+#param phi2{Ep union AE_b};
+param phi2{Ep} default 0;
+param phi3{El_u, AE_b} default 0;
+#param b{i in V} default if i=source then (- sum{j in V: j<>source} b[j]);
+var reducedCostValue;
+
+var f {(i,j) in Ep union AE_b} binary;
+
+minimize onePair:
+    reducedCostValue
+;
+
+s.t. reducedCost:
+    #reducedCostValue = 1 - sum{(i,j) in Ep} (- phi2[i,j]*f[i,j]) -  sum{(s,i) in AE_path} (f[s,i] * phi3[source,dest,s,i]) - phi1[source,dest]
+    reducedCostValue = sum{(i,j) in Ep} (f[i,j] - phi2[i,j]*f[i,j]) -  sum{(s,i) in AE_b} (f[s,i] * phi3[source,dest,s,i]) - phi1[source,dest]
+    #reducedCostValue = sum{(i,j) in Ep} (f[i,j] + phi2[i,j]*f[i,j]) +  sum{(s,i) in AE_path} (f[s,i] * phi3[source,dest,s,i]) - phi1[source,dest]
+    #reducedCostValue = sum{(i,j) in Ep union AE_path} (f[i,j] + phi2[i,j]*f[i,j]) +  sum{(s,i) in AE_path} (f[s,i] * phi3[source,dest,s,i]) - phi1[source,dest]
+;
+
+s.t. balance1 {i in Np}:
+	sum{(i,j) in Ep union AE_b} f[i,j] - sum{(j,i) in Ep union AE_b} f[j,i] = 0;
+
+s.t. balance2:
+	sum{(source,j) in Ep union AE_b} f[source,j] - sum{(j,source) in Ep union AE_b} f[j,source] = 1;
+
+s.t. balance3:
+	sum{(dest,i) in Ep union AE_b} f[dest,i] - sum{(i,dest) in Ep union AE_b} f[i,dest] = -1;
+
+s.t. balance4 :
+	sum{(s1,i) in AE} f[s1,i] <= 1
+;
+
+s.t. balance5 {(i,j) in Ep}:
+	f[i,j] + f[j,i] <=1
+;
+
+
+s.t. notMappedSame:
+	sum{(i,j) in Ep} f[i,j] >= 1;
+	#sum{(i,j) in Ep} f[i,j] + sum{(i,j) in AE_path} f[i,j] >= 4;
+
+problem pricing: f, reducedCostValue, onePair, reducedCost, balance1, balance2, balance3, balance4, balance5, notMappedSame;

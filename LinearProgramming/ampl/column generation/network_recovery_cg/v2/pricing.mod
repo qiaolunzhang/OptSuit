@@ -36,9 +36,8 @@ s.t. balance2:
 s.t. balance3:
 	sum{(dest,i) in Ep union AE_path} f[dest,i] - sum{(i,dest) in Ep union AE_path} f[i,dest] = -1;
 
-
-s.t. notMappedSame {i in Np: (source,i) in AE and (dest,i) in AE}:
-	f[source,i] + f[i,dest] <=1;
+s.t. notMappedSame:
+	sum{(i,j) in Ep} f[i,j] >= 1;
 	#sum{(i,j) in Ep} f[i,j] + sum{(i,j) in AE_path} f[i,j] >= 4;
 	
 s.t. oneOut {i in Np}:
