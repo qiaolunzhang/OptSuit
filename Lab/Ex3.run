@@ -1,0 +1,112 @@
+reset;
+reset options;
+
+
+model Ex3.mod;
+
+data ./instances/i_40_1.dat;
+
+option solver cplex;
+
+
+#problem OriginalKnapsack: x, OverallProfit, Capacity, Volume, Budget;
+
+#problem LagrangianRelaxation: x, LR_objective;
+
+problem SurrogateRelaxation: x, y, UsedVM, assignedOneServer, SurrogateCapacity;
+
+#problem kOptNeighborhood: x, OverallProfit, Capacity, Volume, Budget, NeighbourhoodSize;
+
+param MAXITER := 1000;
+param tic;
+param toc;
+param LR_time;
+param SR_time;
+param greedy_time;
+param kopt_time;
+param flag binary, default 1;
+param iteration;
+
+let toc := _ampl_user_time + _total_solve_user_time;
+
+#let LR_time := toc - tic;
+let tic := toc;
+
+printf"\n\n\n">results.txt;
+printf"-----------------------------------------------------------------------------\n" > results.txt;
+printf"  			 Surrogate Relaxation	                            \n" > results.txt;
+printf"-----------------------------------------------------------------------------\n" > results.txt;
+
+# Initialize the surrogate relaxation
+
+param LB_SR default 0;
+display LB_SR > results.txt;
+
+param UB_SR default sum {j in 1..M} 1;
+display UB_SR > results.txt;
+
+let t:=1;
+
+for {iter in 1..MAXITER} 
+{
+  let iteration := iter;
+  
+  printf"\nIteration %d ... \n",iter > results.txt;
+   
+  solve SurrogateRelaxation;
+
+  # Check for feasibility
+  let flag := 1;
+  for {j in 1..M} {
+  	  if (sum {i in 1..N} w[i] * x[i,j] > B_c * y[j]) || (sum {i in 1..N} cpu[i] * x[i,j] > B_CPU * y[j]) || (sum {i in 1..N} m[i] * x[i,j] > B_m * y[j]) then {
+  	  	let flag := 0;
+  	  	break;
+  	  }
+  }
+  if (flag = 1) then
+  {
+    # Update upper bound 
+    let UB_SR := min(UB_SR, UsedVM);
+    
+  	printf"\n Feasible solution found - value: %g", UB_SR > results.txt;
+  
+  }
+ 
+  # Update step size
+    let t := 0.995*t;
+ 
+  # Update lower bound
+  let LB_SR := max(LB_SR, sum {j in 1..M} y[j]);
+  
+  #let UB_SR := min(UB_SR, UsedVM);
+  printf"\n Current best lower bound %g",LB_SR > results.txt;
+   
+
+  # Update multipliers
+  for {j in 1..M} {
+  let m1_old[j] := m1[j];
+  let m2_old[j] := m2[j];
+  let m3_old[j] := m3[j];
+  }
+  
+  for {j in 1..M} {
+  let m1[j] := max(0, m1_old[j] - t * (B_c * y[j] - sum {i in 1..N} w[i] * x[i,j]));
+  let m2[j] := max(0, m2_old[j] - t * (B_CPU * y[j] - sum {i in 1..N} cpu[i] * x[i,j]));
+  let m3[j] := max(0, m3_old[j] - t * (B_m * y[j] - sum {i in 1..N} m[i] * x[i,j]));
+  }
+  
+  for {j in 1..M} {
+  printf"\n Updated multipliers %g,%g,%g and step %g \n", m1[j],m2[j],m3[j],t> results.txt;
+  }
+  
+  if(LB_SR == UB_SR) then break;
+  
+}
+let toc := _ampl_user_time + _total_solve_user_time;
+
+let SR_time := toc - tic;
+let tic := toc;
+
+printf"Time is: %s\n", SR_time > results.txt;
+printf"Number of iterations is: %s\n", iteration > results.txt;
+printf"\n\n\n">results.txt;

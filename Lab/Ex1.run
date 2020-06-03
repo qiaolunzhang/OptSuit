@@ -1,0 +1,46 @@
+reset;
+
+option solver cplex;
+
+param tic;
+param toc;
+param ILP_time;
+
+
+model Ex1.mod;
+set CASES := {"i_10_1","i_10_2","i_10_3","i_15_1","i_15_2","i_20_1","i_40_1"};
+
+#data .\instances\i_10_2.dat;
+for {j in CASES} {
+	reset data;
+	printf "\n\nInstances %s.dat\n", j > results_ex1.txt;
+	printf "%s.dat , ", j > results_ex1.csv;
+	
+	data (".\instances\" & j & ".dat");	
+	
+	option relax_integrality 1;
+	
+	let tic := _ampl_user_time + _total_solve_user_time;
+	solve;
+	
+	let toc := _ampl_user_time + _total_solve_user_time;
+	let ILP_time := toc - tic;
+	printf "continuous relaxation value is %s\n", UsedVM > results_ex1.txt;
+	printf "continuous relaxation time is %s\n", ILP_time > results_ex1.txt;
+	printf "%s , ", UsedVM > "results_ex1.csv";
+	
+	option relax_integrality 0;
+	
+	let tic := _ampl_user_time + _total_solve_user_time;
+	solve;
+	
+	let toc := _ampl_user_time + _total_solve_user_time;
+	let ILP_time := toc - tic;
+	printf "optimal value is %s\n", UsedVM > results_ex1.txt;
+	printf "ILP time is %s\n", ILP_time > results_ex1.txt;
+	printf "%s , ", UsedVM > "results_ex1.csv";
+	printf "%s\n", ILP_time > "results_ex1.csv";
+	
+	
+
+}
